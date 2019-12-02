@@ -1,5 +1,8 @@
 package org.polytech.sma.tp1
 
+import com.sun.org.apache.xpath.internal.operations.Bool
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -8,13 +11,28 @@ import kotlin.random.Random
 class Grid(
 	val width: Int = 5,
 	val height: Int = 5
-) {
+) : Observer, Iterable<Agent> {
 	
 	companion object {
 		const val MAX_AGENT = 100
 	}
 	
 	private val agents: ArrayList<Agent> = ArrayList()
+	
+	override fun update(o: Observable?, arg: Any?) {
+		if (o != null && o is Agent)
+			this.print()
+	}
+	
+	fun startAgents() {
+		for (agent in agents)
+			agent.start()
+	}
+	
+	fun stopAgents() {
+		for (agent in agents)
+			agent.stop()
+	}
 	
 	/**
 	 * Create and add an agent in the grid.
@@ -52,6 +70,7 @@ class Grid(
 		}
 		
 		val agent = Agent(
+			this,
 			id,
 			symbol,
 			position,
@@ -82,21 +101,30 @@ class Grid(
 		if (agents.map { a -> a.positionFinal }.contains(agent.positionFinal))
 			return false
 		
+		agent.addObserver(this)
 		agents.add(agent)
 		return true
 	}
 	
-	fun moveAgent(agent: Agent, x: Int, y: Int): Boolean {
-		if (x < 0 || width <= x ||
-			y < 0 || height <= y ||
-			agents.map { a -> a.position }.contains(agent.position))
+	fun canMoveAgent(agent: Agent, x: Int, y: Int): Boolean {
+		if (x < 0 || width <= x || (agent.position.first - 1 != x && agent.position.first != x && agent.position.first + 1 != x) ||
+			y < 0 || height <= y || (agent.position.second - 1 != y && agent.position.second != y && agent.position.second + 1 != y) ||
+			agents.map { a -> a.position }.contains(Pair(x, y)))
 			return false
-		
+		return true
+	}
+	
+	fun moveAgent(agent: Agent, x: Int, y: Int): Boolean {
+		if (!canMoveAgent(agent, x, y))
+			return false
 		agent.position = Pair(x, y)
 		return true
 	}
 	fun moveAgent(agent: Agent, newPosition: Pair<Int, Int>): Boolean {
 		return moveAgent(agent, newPosition.first, newPosition.second)
+	}
+	fun moveAgent(agent: Agent, movement: Movement): Boolean {
+		return moveAgent(agent, agent.position.first + movement.xMovement, agent.position.second + movement.yMovement)
 	}
 	
 	fun distanceManhattan(x1: Int, y1: Int, x2: Int, y2: Int): Int {
@@ -120,6 +148,11 @@ class Grid(
 		return true
 	}
 	
+	@Synchronized
+	fun print() {
+		println(this)
+	}
+	
 	fun getAgentAtPos(x: Int, y: Int): Agent? {
 		if (x < 0 || width <= x ||
 			y < 0 || height <= y)
@@ -141,6 +174,10 @@ class Grid(
 	}
 	operator fun get(x: Int, y: Int): Agent? {
 		return getAgentAtPos(x, y)
+	}
+	
+	override fun iterator(): Iterator<Agent> {
+		return agents.iterator()
 	}
 	
 	//region OVERRIDES
