@@ -113,6 +113,12 @@ class Grid(
 			return false
 		return true
 	}
+	fun canMoveAgent(agent: Agent, newPosition: Pair<Int, Int>): Boolean {
+		return canMoveAgent(agent, newPosition.first, newPosition.second)
+	}
+	fun canMoveAgent(agent: Agent, movement: Movement): Boolean {
+		return canMoveAgent(agent, agent.position.first + movement.xMovement, agent.position.second + movement.yMovement)
+	}
 	
 	fun moveAgent(agent: Agent, x: Int, y: Int): Boolean {
 		if (!canMoveAgent(agent, x, y))

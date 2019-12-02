@@ -10,9 +10,7 @@ enum class Movement(
 	LEFT(-1, 0),
 	RIGHT(1, 0);
 	
-	fun toPair(): Pair<Int, Int> {
-		return Pair(xMovement, yMovement)
-	}
+	fun toPair(): Pair<Int, Int> = Pair(xMovement, yMovement)
 	
 	fun invert(): Movement {
 		return when (this) {
@@ -33,9 +31,7 @@ enum class Movement(
 			RIGHT -> DOWN
 		}
 	}
-	fun turnAnticlockwise(): Movement {
-		return turnClockwise().invert()
-	}
+	fun turnAnticlockwise(): Movement = turnClockwise().invert()
 	
 	operator fun plus(movement: Movement): Pair<Int, Int> {
 		return plus(Pair(movement.xMovement, movement.yMovement))
@@ -65,7 +61,18 @@ enum class Movement(
 		return Pair(xMovement / movement.first, yMovement / movement.second)
 	}
 	
-	operator fun not(): Movement {
-		return invert()
-	}
+	operator fun not(): Movement = invert()
+}
+
+operator fun Pair<Int, Int>.plus(pair: Pair<Int, Int>): Pair<Int, Int> {
+	return Pair(first + pair.first, second + pair.second)
+}
+operator fun Pair<Int, Int>.minus(pair: Pair<Int, Int>): Pair<Int, Int> {
+	return Pair(first - pair.first, second - pair.second)
+}
+operator fun Pair<Int, Int>.times(pair: Pair<Int, Int>): Pair<Int, Int> {
+	return Pair(first * pair.first, second * pair.second)
+}
+operator fun Pair<Int, Int>.div(pair: Pair<Int, Int>): Pair<Int, Int> {
+	return Pair(first / pair.first, second / pair.second)
 }

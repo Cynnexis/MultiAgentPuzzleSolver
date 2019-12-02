@@ -4,7 +4,7 @@ import java.util.*
 import kotlin.concurrent.schedule
 import kotlin.system.exitProcess
 
-fun main(args: Array<String>) {
+fun main() {
 	val grid = Grid(5, 5)
 	grid.createAgent()
 	grid.createAgent()
@@ -12,7 +12,7 @@ fun main(args: Array<String>) {
 	grid.createAgent()
 	println(grid.toString())
 	grid.startAgents()
-	Timer().schedule(5000) {
+	Timer().schedule(10000) {
 		grid.stopAgents()
 		Timer().schedule(1000) {
 			exitProcess(0)
