@@ -20,8 +20,10 @@ class Grid(
 	private val agents: ArrayList<Agent> = ArrayList()
 	
 	override fun update(o: Observable?, arg: Any?) {
-		if (o != null && o is Agent)
-			this.print()
+		if (o != null && o is Agent) {
+//			this.print()
+			Log.log(this)
+		}
 	}
 	
 	fun startAgents() {
@@ -173,6 +175,10 @@ class Grid(
 	
 	fun getAgent(index: Int): Agent {
 		return agents[index]
+	}
+	
+	fun size(): Int {
+		return agents.size
 	}
 	
 	operator fun get(index: Int): Agent {

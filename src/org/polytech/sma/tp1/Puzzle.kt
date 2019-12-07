@@ -11,6 +11,8 @@ fun main() {
 	grid.createAgent()
 	grid.createAgent()
 	println(grid.toString())
+	Log.init(grid)
+	
 	grid.startAgents()
 	Timer().schedule(10000) {
 		grid.stopAgents()
