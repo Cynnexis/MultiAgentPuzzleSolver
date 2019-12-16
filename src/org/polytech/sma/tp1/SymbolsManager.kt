@@ -9,14 +9,14 @@ object SymbolsManager : Iterable<String> {
 	var symbols = ArrayList<String>()
 	
 	init {
+		// Download emoji list
 		val url = URL("https://unpkg.com/emoji.json@12.1.0/emoji.json")
 		val jsonText = url.readText()
 		val root: JsonArray = JsonParser.parseString(jsonText).asJsonArray
-		for (emoji in root) {
-			val char: String = emoji.asJsonObject.get("char").asString.first().toString()
-			if (!symbols.contains(char))
-				symbols.add(char)
-		}
+		val set = HashSet<String>()
+		for (emoji in root)
+			set.add(emoji.asJsonObject.get("char").asString.first().toString())
+		symbols = ArrayList(set)
 	}
 	
 	fun getRandomSymbol(): String {
