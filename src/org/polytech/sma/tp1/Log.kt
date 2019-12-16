@@ -8,9 +8,11 @@ object Log {
 	private var isInitialized = false
 	const val GRID_FILENAME = "grid.log"
 	
+	var ENABLE_LOGGING = true
+	
 	@Synchronized
 	fun init(grid: Grid) {
-		if (!isInitialized) {
+		if (!isInitialized && ENABLE_LOGGING) {
 			File(GRID_FILENAME).delete()
 			File(GRID_FILENAME).writeText("Grid ${grid.width}x${grid.height} with ${grid.size()} agent${if (grid.size() > 0) "s" else ""}\n\n")
 			
@@ -25,17 +27,21 @@ object Log {
 	
 	@Synchronized
 	fun log(grid: Grid) {
-		if (!isInitialized)
-			init(grid)
-		File(GRID_FILENAME).appendText(grid.toString() + "\n")
+		if (ENABLE_LOGGING) {
+			if (!isInitialized)
+				init(grid)
+			File(GRID_FILENAME).appendText(grid.toString() + "\n")
+		}
 	}
 	
 	@Synchronized
 	fun log(agent: Agent) {
-		if (!isInitialized)
-			return
-		
-		File(getAgentFilename(agent)).appendText("position=${agent.position}\n")
+		if (ENABLE_LOGGING) {
+			if (!isInitialized)
+				return
+			
+			File(getAgentFilename(agent)).appendText("position=${agent.position}\n")
+		}
 	}
 	
 	private fun getAgentFilename(agent: Agent): String {

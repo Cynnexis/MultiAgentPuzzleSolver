@@ -149,6 +149,14 @@ class Grid(
 		return distanceEuclidean(pos1.first, pos1.second, pos2.first, pos2.second)
 	}
 	
+	fun numberOfWinner(): Int {
+		var num = 0
+		for (a in agents)
+			if (a.position == a.positionFinal)
+				num++
+		return num
+	}
+	
 	fun isFinished(): Boolean {
 		for (a in agents)
 			if (a.position != a.positionFinal)

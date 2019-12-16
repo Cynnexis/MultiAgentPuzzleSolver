@@ -6,10 +6,8 @@ import kotlin.system.exitProcess
 
 fun main() {
 	val grid = Grid(5, 5)
-	grid.createAgent()
-	grid.createAgent()
-	grid.createAgent()
-	grid.createAgent()
+	for (i in 1..12)
+		grid.createAgent()
 	println(grid.toString())
 	Log.init(grid)
 	

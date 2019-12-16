@@ -1,10 +1,10 @@
 package org.polytech.sma.tp1
 
-import java.lang.Math.abs
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import kotlin.random.Random
+import kotlin.math.abs
 
 data class Agent(
 	private val _grid: Grid,
@@ -57,16 +57,24 @@ data class Agent(
 	override fun run() {
 		threadBool.set(true)
 		var iter = 0
-		while (position != positionFinal && threadBool.get()) {
+		while (!grid.isFinished() && threadBool.get()) {
 			var movement = Movement.STAY
 			
-			val mail = Mailbox.pop(this)
+			var mail = Mailbox.pop(this)
 			
 			// If we have a mail, execute it, otherwise, try to go to the goal
 			if (mail != null) {
-				movement = mail.movementWhereEmitterIs.turnClockwise()
+				if (grid.canMoveAgent(this, mail.movementWhereEmitterIs.turnClockwise()))
+					movement = mail.movementWhereEmitterIs.turnClockwise()
+				else if (grid.canMoveAgent(this, mail.movementWhereEmitterIs.turnAnticlockwise()))
+					movement = mail.movementWhereEmitterIs.turnAnticlockwise()
+				else if (grid.canMoveAgent(this, mail.movementWhereEmitterIs.invert()))
+					movement = mail.movementWhereEmitterIs.invert()
+				else
+					// Else ignore and go to the next condition to go to goal
+					mail = null
 			}
-			else {
+			if (mail == null) {
 				val deltaX = position.first - positionFinal.first
 				val deltaY = position.second - positionFinal.second
 				
@@ -79,7 +87,7 @@ data class Agent(
 				
 				// If the goal is achieved
 				if (deltaX == 0 && deltaY == 0)
-					break
+					movement = Movement.STAY
 				// If the goal is farther away horizontally than vertically
 				else if (abs(deltaX) >= abs(deltaY)) {
 					// If the goal is on the left
@@ -125,12 +133,14 @@ data class Agent(
 		}
 		
 		synchronized(this) {
-			print("$_id ($_symbol) ")
-			if (position == positionFinal)
-				print("has reached its destination $_positionFinal !")
-			else
-				print("could not reached its destination $_positionFinal... (distance from goal = {euclidean=${_grid.distanceEuclidean(_position, _positionFinal)}, manhattan=${_grid.distanceManhattan(_position, _positionFinal)} })")
-			println("\t(nb iter = $iter)")
+			if (Log.ENABLE_LOGGING) {
+				print("$_id ($_symbol) ")
+				if (position == positionFinal)
+					print("has reached its destination $_positionFinal !")
+				else
+					print("could not reached its destination $_positionFinal... (distance from goal = {euclidean=${_grid.distanceEuclidean(_position, _positionFinal)}, manhattan=${_grid.distanceManhattan(_position, _positionFinal)} })")
+				println("\t(nb iter = $iter)")
+			}
 		}
 	}
 }
