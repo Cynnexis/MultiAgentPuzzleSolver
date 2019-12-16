@@ -1,28 +1,23 @@
 package org.polytech.sma.tp1
 
+import com.google.gson.*
+import java.net.URL
 import kotlin.random.Random
 
 object SymbolsManager : Iterable<String> {
 	
-	val symbols = arrayListOf(
-		"❤",
-		"\uD83D\uDE00",
-		"\uD83D\uDE3A",
-		"\uD83D\uDC35",
-		"\uD83E\uDD81",
-		"\uD83D\uDC3A",
-		"\uD83D\uDC2F",
-		"\uD83E\uDD92",
-		"\uD83E\uDD8A",
-		"\uD83D\uDC3B",
-		"\uD83D\uDC30",
-		"\uD83D\uDC39",
-		"\uD83D\uDC2D",
-		"\uD83D\uDC17",
-		"\uD83D\uDC37",
-		"\uD83D\uDC2E",
-		"\uD83D\uDC36"
-		)
+	var symbols = ArrayList<String>()
+	
+	init {
+		val url = URL("https://unpkg.com/emoji.json@12.1.0/emoji.json")
+		val jsonText = url.readText()
+		val root: JsonArray = JsonParser.parseString(jsonText).asJsonArray
+		for (emoji in root) {
+			val char: String = emoji.asJsonObject.get("char").asString.first().toString()
+			if (!symbols.contains(char))
+				symbols.add(char)
+		}
+	}
 	
 	fun getRandomSymbol(): String {
 		return symbols[Random.nextInt(symbols.size)]
