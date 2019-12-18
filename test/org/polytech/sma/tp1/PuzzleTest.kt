@@ -29,8 +29,27 @@ internal class PuzzleTest {
 		println("Time elapsed: ${timer.stop()}ms")
 	}
 	
-	private fun computeSuccess(width: Int = WIDTH, height: Int = HEIGHT, numAgents: Int = NUM_AGENTS, numTrials: Int = NUM_TRIALS, timeoutMs: Long = TIMEOUT_MS, onEpochFinished: (epoch: Int, grid: Grid, success: Int) -> Unit = { _, _, _ -> }): Double {
-		var success = 0
+	/**
+	 * Compute the individual and collective success for a series of simulation. The individual success is a percentage
+	 * of agents that successively reached their goal, divided by the number of trials times the number of agents. The
+	 * collective number is the percentage of simulation that succeeded, divided by the number of trial.
+	 * @param width The width of the grid. Default is WIDTH.
+	 * @param height The height of the grid. Default is HEIGHT.
+	 * @param numAgents The number of agents in the simulation. Default is NUM_AGENTS.
+	 * @param numTrials The number of trials. Default is NUM_TRIALS.
+	 * @param timeoutMs The timeout in milliseconds before the simulation stops. Default is TIMEOUT_MS.
+	 * @param onEpochFinished Callback that is called at the end of each epoch. Default is empty callback.
+	 * @return Return a pair of individual success and collective success.
+	 */
+	private fun computeSuccess(
+		width: Int = WIDTH,
+		height: Int = HEIGHT,
+		numAgents: Int = NUM_AGENTS,
+		numTrials: Int = NUM_TRIALS,
+		timeoutMs: Long = TIMEOUT_MS,
+		onEpochFinished: (epoch: Int, grid: Grid, individualSuccess: Int, collectiveSuccess: Int) -> Unit = { _, _, _, _ -> }): Pair<Double, Double> {
+		var individualSuccess = 0
+		var collectiveSuccess = 0
 		for (epoch in 1..numTrials) {
 			val grid = Grid(width, height)
 			for (i in 1..numAgents)
@@ -39,20 +58,23 @@ internal class PuzzleTest {
 			grid.startAgents()
 			Thread.sleep(timeoutMs)
 			grid.stopAgents()
-			success += grid.numberOfWinner()
-			onEpochFinished(epoch, grid, success)
+			individualSuccess += grid.numberOfWinner()
+			collectiveSuccess += if (grid.isFinished()) 1 else 0
+			onEpochFinished(epoch, grid, individualSuccess, collectiveSuccess)
 		}
-		return success.toDouble() / (numTrials * numAgents).toDouble()
+		return Pair(individualSuccess.toDouble() / (numTrials * numAgents).toDouble(), collectiveSuccess.toDouble() / numTrials.toDouble())
 	}
 	
 	@Test
 	@Order(1)
 	fun success() {
 		println("Grid ${WIDTH}x${HEIGHT}, $NUM_TRIALS trial${if (NUM_TRIALS > 1) "s" else ""}, $NUM_AGENTS agent${if (NUM_AGENTS > 1) "s" else ""}, timeout = ${TIMEOUT_MS}ms")
-		val success = computeSuccess { epoch: Int, grid: Grid, success: Int ->
-			println("Epoch $epoch/$NUM_TRIALS: winners = ${grid.numberOfWinner()}/$NUM_AGENTS (total: $success)")
+		val success = computeSuccess { epoch: Int, grid: Grid, individualSuccess: Int, collectiveSuccess: Int ->
+			println("Epoch $epoch/$NUM_TRIALS: winners = ${grid.numberOfWinner()}/$NUM_AGENTS (individual: $individualSuccess, collective: $collectiveSuccess)")
 		}
-		println("Success = ${success * 100}% ($NUM_TRIALS trial${if (NUM_TRIALS > 1) "s" else ""}, $NUM_AGENTS agent${if (NUM_AGENTS > 1) "s" else ""})")
+		val individualSuccess = success.first
+		val collectiveSuccess = success.second
+		println("Individual success = ${individualSuccess * 100}%, collective = ${collectiveSuccess * 100}% ($NUM_TRIALS trial${if (NUM_TRIALS > 1) "s" else ""}, $NUM_AGENTS agent${if (NUM_AGENTS > 1) "s" else ""})")
 	}
 	
 	@Test
@@ -63,14 +85,16 @@ internal class PuzzleTest {
 		val file = File(filename)
 		file.delete()
 		file.writeText("\"Testing all number of agents, from 1 tp $numAgentsLimit\",\"" + SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(Date()) + "\"" + System.lineSeparator())
-		file.appendText("\"Number of agents\",\"Success\",\"Time (ms)\"" + System.lineSeparator())
+		file.appendText("\"Number of agents\",\"Individual Success\",\"Collective Success\",\"Time (ms)\"" + System.lineSeparator())
 		val timer = Stopwatch(false)
 		for (numAgents in 1..24) {
 			timer.start()
 			val success = computeSuccess(numAgents = numAgents)
+			val individualSuccess = success.first
+			val collectiveSuccess = success.second
 			timer.stop()
-			println("Success for $numAgents agent${if (NUM_AGENTS > 1) "s" else ""} = ${success * 100}% (elapsed ${timer.elapsed()}ms)")
-			file.appendText("\"$numAgents\",\"$success\",\"${timer.elapsed()}\"" + System.lineSeparator())
+			println("Success for $numAgents agent${if (NUM_AGENTS > 1) "s" else ""} = individual:${individualSuccess * 100}%, collective:${collectiveSuccess * 100} (elapsed ${timer.elapsed()}ms)")
+			file.appendText("\"$numAgents\",\"$individualSuccess\",\"$collectiveSuccess\",\"${timer.elapsed()}\"" + System.lineSeparator())
 		}
 	}
 }
