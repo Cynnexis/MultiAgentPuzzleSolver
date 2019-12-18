@@ -1,5 +1,6 @@
 package org.polytech.sma.tp1
 
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -13,9 +14,17 @@ internal class PuzzleTest {
 		const val TIMEOUT_MS: Long = 100
 	}
 	
+	private val timer = Stopwatch()
+	
 	@BeforeEach
 	fun setUp() {
 		Log.ENABLE_LOGGING = false
+		timer.start()
+	}
+	
+	@AfterEach
+	fun tearDown() {
+		println("Time elapsed: ${timer.stop()}ms")
 	}
 	
 	@Test
@@ -34,6 +43,6 @@ internal class PuzzleTest {
 			println("Epoch $epoch/$NUM_TRIALS: winners = ${grid.numberOfWinner()}/$NUM_AGENTS (total: $success)")
 		}
 		val accuracy: Double = success.toDouble() / (NUM_TRIALS * NUM_AGENTS).toDouble()
-		print("Accuracy = ${accuracy * 100}% ($NUM_TRIALS trial${if (NUM_TRIALS > 1) "s" else ""}, $NUM_AGENTS agent${if (NUM_AGENTS > 1) "s" else ""})")
+		println("Accuracy = ${accuracy * 100}% ($NUM_TRIALS trial${if (NUM_TRIALS > 1) "s" else ""}, $NUM_AGENTS agent${if (NUM_AGENTS > 1) "s" else ""})")
 	}
 }
