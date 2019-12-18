@@ -5,4 +5,9 @@ data class Message(
 	val receiver: Agent,
 	val movementWhereEmitterIs: Movement = Movement.STAY
 ) {
+	constructor(m: Message) : this(
+		m.emitter,
+		m.receiver,
+		m.movementWhereEmitterIs
+	)
 }

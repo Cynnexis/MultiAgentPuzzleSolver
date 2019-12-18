@@ -9,8 +9,8 @@ internal class PuzzleTest {
 	companion object {
 		const val WIDTH = 5
 		const val HEIGHT = 5
-		const val NUM_AGENTS = 4
-		const val NUM_TRIALS = 10
+		const val NUM_AGENTS = 14
+		const val NUM_TRIALS = 100
 		const val TIMEOUT_MS: Long = 100
 	}
 	

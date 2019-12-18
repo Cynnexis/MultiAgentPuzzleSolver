@@ -60,7 +60,7 @@ data class Agent(
 		while (!grid.isFinished() && threadBool.get()) {
 			var movement = Movement.STAY
 			
-			var mail = Mailbox.pop(this)
+			var mail = Mailbox(this)
 			
 			// If we have a mail, execute it, otherwise, try to go to the goal
 			if (mail != null) {
@@ -111,7 +111,7 @@ data class Agent(
 				if (!grid.canMoveAgent(this, movement)) {
 					// Otherwise, send a mail to the obstacle (agent)
 					movement = try {
-						Mailbox.add(Message(
+						Mailbox.send(Message(
 							this,
 							_grid[_position.first + movement.xMovement, _position.second + movement.yMovement]!!,
 							movement.invert()

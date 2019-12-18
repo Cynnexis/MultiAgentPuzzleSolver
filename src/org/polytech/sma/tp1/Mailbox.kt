@@ -2,15 +2,20 @@ package org.polytech.sma.tp1
 
 object Mailbox {
 	
-	private val messages: Array<Message?> = arrayOfNulls<Message?>(Grid.MAX_AGENT)
+	private val messages = HashMap<Int, Message?>()
 	
 	@Synchronized
-	fun add(message: Message) {
+	fun send(message: Message) {
 		messages[message.receiver.id] = message
+	}
+	@Synchronized
+	fun send(receiver: Agent, message: Message) {
+		val m = Message(message.emitter, receiver, message.movementWhereEmitterIs)
+		messages[receiver.id] = m
 	}
 	
 	@Synchronized
-	fun get(receiver: Agent): Message? {
+	fun getMessage(receiver: Agent): Message? {
 		return messages[receiver.id]
 	}
 	
@@ -20,5 +25,20 @@ object Mailbox {
 		if (message != null)
 			messages[receiver.id] = null
 		return message
+	}
+	
+	@Synchronized
+	operator fun get(receiver: Agent): Message? {
+		return getMessage(receiver)
+	}
+	
+	@Synchronized
+	operator fun set(receiver: Agent, message: Message) {
+		send(receiver, message)
+	}
+	
+	@Synchronized
+	operator fun invoke(receiver: Agent): Message? {
+		return pop(receiver)
 	}
 }
