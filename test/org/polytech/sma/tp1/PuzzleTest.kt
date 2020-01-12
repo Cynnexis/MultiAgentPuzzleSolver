@@ -12,7 +12,7 @@ internal class PuzzleTest {
 		const val WIDTH = 5
 		const val HEIGHT = 5
 		const val NUM_AGENTS = 5
-		const val NUM_TRIALS = 100
+		const val NUM_TRIALS = 1000
 		const val TIMEOUT_MS: Long = 100
 	}
 	

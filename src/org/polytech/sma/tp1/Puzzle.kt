@@ -6,7 +6,7 @@ import kotlin.system.exitProcess
 
 fun main() {
 	val grid = Grid(5, 5)
-	for (i in 1..12)
+	for (i in 1..5)
 		grid.createAgent()
 	println(grid.toString())
 	Log.init(grid)
@@ -15,6 +15,8 @@ fun main() {
 	Timer().schedule(10000) {
 		grid.stopAgents()
 		Timer().schedule(1000) {
+			println("Result:")
+			println(grid.toString())
 			exitProcess(0)
 		}
 	}

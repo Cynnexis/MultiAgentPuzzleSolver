@@ -70,9 +70,22 @@ data class Agent(
 					movement = mail.movementWhereEmitterIs.turnAnticlockwise()
 				else if (grid.canMoveAgent(this, mail.movementWhereEmitterIs.invert()))
 					movement = mail.movementWhereEmitterIs.invert()
-				else
-					// Else ignore and go to the next condition to go to goal
-					mail = null
+				else {
+					// Otherwise, send a mail to the obstacle (agent)
+					try {
+						Mailbox.send(Message(
+							emitter = this,
+							receiver = _grid[_position.first + mail.movementWhereEmitterIs.xMovement, _position.second + mail.movementWhereEmitterIs.yMovement]!!,
+							movementWhereEmitterIs = mail.movementWhereEmitterIs
+						))
+//						movement = Movement.STAY
+						mail = null
+					} catch (e: Exception) {
+						// Else ignore and go to the next condition to go to goal
+						mail = null
+					}
+					
+				}
 			}
 			if (mail == null) {
 				val deltaX = position.first - positionFinal.first
